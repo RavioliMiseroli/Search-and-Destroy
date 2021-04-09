@@ -1,7 +1,7 @@
 import random
 
 global env
-dim = 50
+dim = 10
 
 def get_env():
     """
@@ -14,7 +14,7 @@ def get_env():
         for col in range(dim):
             # make cell a random terrain type
             # 0 = flat, 1 = hilly, 2 = forest, 3 = cave
-            env[row].append([random.choices([0, 1, 2, 3])[0], False])
+            env[row].append([random.choices([0.1, 0.3, 0.7, 0.9])[0], False])
     return env
 
 def get_target(_env):
@@ -54,4 +54,7 @@ def get_adjacent(row: int, col: int):
     return neighbors
 
 env = get_env()
-get_target(env)
+get_target_coords = get_target(env)
+target = get_target_coords[1]
+
+print(target)
