@@ -13,7 +13,7 @@ def initialize_belief():
     for row in range(0, dim):
         belief.append([])
         for col in range(0, dim):
-            cell = 1/2500
+            cell = 1/9
             # P(target found in cell)
             belief[row].append(cell)
 
@@ -28,7 +28,7 @@ def initialize_confidence():
     for row in range(0, dim):
         confidence.append([])
         for col in range(0, dim):
-            cell = 1/2500
+            cell = 1/9
             # P(target found in cell)
             prob_tf = cell * (1-env[row][col][0])
             confidence[row].append(prob_tf)
@@ -51,7 +51,7 @@ def get_highest_prob(_belief, _confidence):
 
     rand = random.randint(0, len(dupe_probs) - 1)
     # print("Highest prob: ", _belief[dupe_probs[0][0]][dupe_probs[0][1]])
-    # print("Highest prob: ", _confidence[dupe_probs[0][0]][dupe_probs[0][1]])
+    print("Highest prob: ", _confidence[dupe_probs[0][0]][dupe_probs[0][1]])
     return dupe_probs[rand]
             
 def update_belief(_belief, _env, row, col, _confidence):
@@ -67,21 +67,27 @@ def update_belief(_belief, _env, row, col, _confidence):
     target_not_in_searched_cell = (1*not_in_cell)+(likelihood*prior_prob)
     print("target not in search cell: ", target_not_in_searched_cell)
 
-    # P(target in cell | search failed)
-    numerator = likelihood * prior_prob
-    bayes_theorem = numerator/target_not_in_searched_cell
-    print("bayes_theorem: ", bayes_theorem)
-    # print("bayes_theorem: ", bayes_theorem)
-    _belief[row][col] = bayes_theorem
-    _confidence[row][col] = bayes_theorem * (1-likelihood)
-    # print("bayes * (1-likelihood): ", bayes_theorem * (1-likelihood))
+    for r in range(dim):
+        for c in range(dim):
+            if (r, c) == (row, col):
+                numerator = likelihood * prior_prob
+            else:
+                numerator = prior_prob
+
+            # P(target in cell | search failed)
+            bayes_theorem = numerator/target_not_in_searched_cell
+            # print("bayes_theorem: ", bayes_theorem)
+            _belief[row][col] = bayes_theorem
+            _confidence[row][col] = bayes_theorem * (1-likelihood)
+            # print("bayes * (1-likelihood): ", bayes_theorem * (1-likelihood))
+
     return _belief
 
 def print_belief(_belief):
     total = 0
-    # print("---- BELIEF ----")
-    # for r in range(0, dim):
-    #     print(_belief[r])
+    print("---- BELIEF ----")
+    for r in range(0, dim):
+        print(_belief[r])
 
     for r in range(dim):
         for c in range(dim):
@@ -118,10 +124,8 @@ def basic_agent(_env, _belief, _confidence):
             search_prob = random.uniform(0, 1)
 
             # search failed to find the target
-            if search_prob < terrain_prob:
+            if search_prob > terrain_prob:
                 update_belief(_belief, _env, current[0], current[1], _confidence)
-
-                # normalize matrix
                 belief_sum = np.sum(_belief)
                 _belief = _belief/belief_sum
 
@@ -137,9 +141,12 @@ def basic_agent(_env, _belief, _confidence):
 
         # cell doesnt contain the target, update belief state
         else:
+            # x = np.array(belief)
+            # belief_sum = np.sum(x)
+            # y = x/belief_sum
+            # y = y.tolist()
             update_belief(_belief, _env, current[0], current[1], _confidence)
 
-            # normalize matrix
             belief_sum = np.sum(_belief)
             _belief = _belief/belief_sum
 
@@ -153,7 +160,7 @@ confidence = initialize_confidence()
 basic_agent(env, belief, confidence)
 
 print_belief(belief)
-# print_confidence(confidence)
+print_belief(confidence)
 
 print(target)
 

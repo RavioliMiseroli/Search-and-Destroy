@@ -1,7 +1,7 @@
 import random
 
 global env
-dim = 10
+dim = 50
 
 def get_env():
     """
