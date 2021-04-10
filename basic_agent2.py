@@ -57,20 +57,20 @@ def get_highest_prob(_belief, _confidence):
 def update_belief(_belief, _env, row, col, _confidence):
     # P(search failed | target in cell): chance of target not found in search given target in cell: terrain type
     likelihood = _env[row][col][0]
-    print("likelihood: ", likelihood)
+    # print("likelihood: ", likelihood)
     # P(target in cell): prob of cell having target
     prior_prob = _belief[row][col]
-    print("prior_prob: ", prior_prob)
+    # print("prior_prob: ", prior_prob)
     # P(target not in cell)
     not_in_cell = 1 - prior_prob
     # P(searched failed): target not found in searched cell (compute from marginalization)
     target_not_in_searched_cell = (1*not_in_cell)+(likelihood*prior_prob)
-    print("target not in search cell: ", target_not_in_searched_cell)
+    # print("target not in search cell: ", target_not_in_searched_cell)
 
     # P(target in cell | search failed)
     numerator = likelihood * prior_prob
     bayes_theorem = numerator/target_not_in_searched_cell
-    print("bayes_theorem: ", bayes_theorem)
+    # print("bayes_theorem: ", bayes_theorem)
     # print("bayes_theorem: ", bayes_theorem)
     _belief[row][col] = bayes_theorem
     _confidence[row][col] = bayes_theorem * (1-likelihood)
@@ -127,6 +127,7 @@ def basic_agent(_env, _belief, _confidence):
 
                 con_sum = np.sum(_confidence)
                 _confidence = _confidence/con_sum
+                print_belief(_belief)
             # search success, return total num of searches
             else:
                 target_not_found = False
@@ -145,6 +146,8 @@ def basic_agent(_env, _belief, _confidence):
 
             con_sum = np.sum(_confidence)
             _confidence = _confidence/con_sum
+
+            print_belief(_belief)
 
 
 belief = initialize_belief()
