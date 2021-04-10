@@ -35,7 +35,7 @@ def initialize_confidence():
 
     return confidence
 
-def get_highest_prob(_belief, _confidence):
+def get_highest_prob(_belief, _confidence, row, col):
     max = (0, 0)
     dupe_probs = [max]
 
@@ -49,10 +49,24 @@ def get_highest_prob(_belief, _confidence):
             elif _confidence[r][c] == _confidence[max[0]][max[1]]:
                 dupe_probs.append((r, c))
 
-    rand = random.randint(0, len(dupe_probs) - 1)
     # print("Highest prob: ", _belief[dupe_probs[0][0]][dupe_probs[0][1]])
     # print("Highest prob: ", _confidence[dupe_probs[0][0]][dupe_probs[0][1]])
-    return dupe_probs[rand]
+
+    #find shortest distance add to list
+    short_dist_list = []
+    min_dist = 5000
+    for i in dupe_probs:
+        distance = abs(row - i[0]) + abs(col - i[1])
+        if distance < min_dist:
+            min_dist = distance
+
+    for i in dupe_probs:
+        distance = abs(row - i[0]) + abs(col - i[1])
+        if distance == min_dist:
+            short_dist_list.append(i)
+
+    #return random coordinate thats max prob and shortest distance
+    return short_dist_list[random.randint(0, len(short_dist_list)-1)]
             
 def update_belief(_belief, _env, row, col, _confidence):
     # P(search failed | target in cell): chance of target not found in search given target in cell: terrain type
@@ -93,8 +107,9 @@ def print_confidence(_confidence):
     for r in range(0, dim):
         print(_confidence[r])
 
-def basic_agent(_env, _belief, _confidence):
+def basic_agent2(_env, _belief, _confidence):
     searches = 0
+    distance = 0
     # pick random location for agent
     row = random.randint(0, dim - 1)
     col = random.randint(0, dim - 1)
@@ -105,9 +120,6 @@ def basic_agent(_env, _belief, _confidence):
     target_not_found = True
 
     while target_not_found:
-        # not the initial search
-        if searches != 0:
-            current = get_highest_prob(_belief, _confidence)
 
         # increment num of searches
         searches += 1
@@ -127,14 +139,15 @@ def basic_agent(_env, _belief, _confidence):
 
                 con_sum = np.sum(_confidence)
                 _confidence = _confidence/con_sum
-                print_belief(_belief)
+                # print_belief(_belief)
             # search success, return total num of searches
             else:
+                distance += (abs(row - current[0]) + abs(col - current[1]))
                 target_not_found = False
                 print("num of searches ", searches)
                 print("target found at: ", current)
                 print("target terrain: ", _env[current[0]][current[1]][0])
-                return searches
+                return (searches, distance)
 
         # cell doesnt contain the target, update belief state
         else:
@@ -147,16 +160,21 @@ def basic_agent(_env, _belief, _confidence):
             con_sum = np.sum(_confidence)
             _confidence = _confidence/con_sum
 
-            print_belief(_belief)
+            # print_belief(_belief)
+
+        current = get_highest_prob(_belief, _confidence, current[0], current[1])
+        distance += (abs(row - current[0]) + abs(col - current[1]))
+        row = current[0]
+        col = current[1]
 
 
 belief = initialize_belief()
 confidence = initialize_confidence()
 
-basic_agent(env, belief, confidence)
+results = basic_agent2(env, belief, confidence)
 
-print_belief(belief)
-# print_confidence(confidence)
-
-print(target)
+print("searches: " + str(results[0]) + " distance traveled: " + str(results[1]) + " total score: " + str(results[0]+results[1]))
+# print_belief(belief)
+# # print_confidence(confidence)
+# print(target)
 
