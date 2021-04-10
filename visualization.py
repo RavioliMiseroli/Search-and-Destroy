@@ -35,9 +35,9 @@ def show_terrain(_env, target):
     for row in range(dim):
         for col in range(dim):
             e = _env[row][col]
-            
+
             # flat
-            if e[0] == 0:
+            if e[0] == 0.1:
                 # color as flat
                 # create rectangle with margins based on it's position
                 cell = pygame.Rect((MARGIN + CELL_SIZE) * col + MARGIN,
@@ -48,15 +48,15 @@ def show_terrain(_env, target):
                 pygame.draw.rect(screen, WHITE, cell)
 
             # hilly
-            elif e[0] == 1:
+            elif e[0] == 0.3:
                 cell = pygame.Rect((MARGIN + CELL_SIZE) * col + MARGIN,
                                    (MARGIN + CELL_SIZE) * row + MARGIN,
                                    CELL_SIZE,
                                    CELL_SIZE)
                 pygame.draw.rect(screen, GREY, cell)
-            
+
             # forest
-            elif e[0] == 2:
+            elif e[0] == 0.7:
                 cell = pygame.Rect((MARGIN + CELL_SIZE) * col + MARGIN,
                                    (MARGIN + CELL_SIZE) * row + MARGIN,
                                    CELL_SIZE,
@@ -64,7 +64,7 @@ def show_terrain(_env, target):
                 pygame.draw.rect(screen, GREEN, cell)
 
             # cave
-            elif e[0] == 3:
+            elif e[0] == 0.9:
                 cell = pygame.Rect((MARGIN + CELL_SIZE) * col + MARGIN,
                                    (MARGIN + CELL_SIZE) * row + MARGIN,
                                    CELL_SIZE,
@@ -93,4 +93,4 @@ running = True
 while running:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
-            running = False
+            running = False 
