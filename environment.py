@@ -57,4 +57,4 @@ env = get_env()
 get_target_coords = get_target(env)
 target = get_target_coords[1]
 
-print(target)
+#print(target)
