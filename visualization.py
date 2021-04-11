@@ -2,7 +2,7 @@ import pygame
 import numpy as np
 from pygame import color
 
-from environment import dim, env, get_target, get_adjacent
+from environment import *
 
 # colors
 BLACK = (50, 50, 50)

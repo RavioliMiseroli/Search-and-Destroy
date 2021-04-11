@@ -1,22 +1,14 @@
+from basic_agent import initialize_belief, update_belief, print_belief
 from environment import *
 import random
 import collections
 import numpy as np
 from collections import deque
 
-def initialize_belief():
-    """
-    Initializes the agent's belief state
-    :return: belief state list
-    """
-    belief = []
-    for row in range(0, dim):
-        belief.append([])
-        for col in range(0, dim):
-            cell = 1/2500
-            belief[row].append(cell)
-
-    return belief
+def normalizePriority(priorities):
+    for i in range(len(priorities)):
+        for j in range(len(priorities)):
+            priorities[i][j]["able"] = True
 
 def find_highest_prob(_belief, row, col):
     #find max prob add to list
@@ -45,43 +37,10 @@ def find_highest_prob(_belief, row, col):
         if distance == minDist:
             shortDistList.append(i)
 
-    #return random coordinate thats max prob and shortest distance
-    return shortDistList[random.randint(0, len(shortDistList)-1)]
-            
-def update_belief(_belief, _env, row, col):
-    # P(search failed | target in cell): chance of target not found in search given target in cell: terrain type
-    likelihood = _env[row][col][0]
-    #print("likelihood: ", likelihood)
-    # P(target in cell): prob of cell having target
-    prior_prob = _belief[row][col]
-    #print("prior_prob: ", prior_prob)
-    # P(target not in cell)
-    not_in_cell = 1 - prior_prob
-    # P(searched failed): target not found in searched cell (compute from marginalization)
-    target_not_in_searched_cell = (1*not_in_cell)+(likelihood*prior_prob)
-    #print("target not in search cell: ", target_not_in_searched_cell)
+    #return whole lsit of coords
+    return shortDistList
 
-    # P(target in cell | search failed)
-    numerator = likelihood * prior_prob
-    bayes_theorem = numerator/target_not_in_searched_cell
-    #print("bayes_theorem: ", bayes_theorem)
-    # print("bayes_theorem: ", bayes_theorem)
-    _belief[row][col] = bayes_theorem
-    # print("bayes * (1-likelihood): ", bayes_theorem * (1-likelihood))
-    return _belief
-
-def print_belief(_belief):
-    total = 0
-    print("---- BELIEF ----")
-    #for r in range(0, dim):
-        #print(_belief[r])
-
-    for r in range(dim):
-        for c in range(dim):
-            total = total + _belief[r][c]
-    print("Total probability should be 1: ", total)
-
-def basic_agent(_env, _belief):
+def advanced_agent(_env, _belief):
     searches = 0
     distance = 0
     # pick random location for agent
@@ -114,30 +73,37 @@ def basic_agent(_env, _belief):
                 searches+=1
 
         #go to next coord and process, add to distance
-        nextCoord = find_highest_prob(_belief, row, col)
+        nextCoords = find_highest_prob(_belief, row, col)
+        localBest = ()
+        localBestBeliefSum = 0
+        for i in nextCoords:
+            sum = 0
+            testBelief = update_belief(_belief, _env, i[0], i[1])
+            testBeliefSum = np.sum(testBelief)
+            testBelief = testBelief/testBeliefSum
+            if i[0]+1 < 50 and i[0] +1 >= 0:
+                sum += testBelief[i[0]+1, i[1]]
+            if i[0]-1 < 50 and i[0]-1 >= 0:
+                sum += testBelief[i[0]-1, i[1]]
+            if i[1]-1 < 50 and i[1]-1 >= 0:
+                sum += testBelief[i[0], i[1]-1]
+            if i[1]+1 < 50 and i[1]+1 >= 0:
+                sum += testBelief[i[0], i[1]+1]
+            if sum > localBestBeliefSum:
+                localBest = i
+                localBestBeliefSum = sum
+
+        nextCoord = localBest
+
         distance += (abs(row - nextCoord[0]) + abs(col - nextCoord[1]))
         row = nextCoord[0]
         col = nextCoord[1]
 
     pass
 
-
-y1 =[]
-
-
-for i in range(10):
-    belief = initialize_belief()
-    env = get_env()
-    get_target_coords = get_target(env)
-    target = get_target_coords[1]
-
-    results = basic_agent(env, belief)
-    score = results[0] + results[1]
-    y1.append(score)
-
-print(y1)
-
-
-
-
-
+belief = initialize_belief()
+env = get_env()
+get_target_coords = get_target(env)
+target = get_target_coords[1]
+results = advanced_agent(env, belief)
+print(results[0] + results[1])

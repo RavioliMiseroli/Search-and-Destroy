@@ -1,7 +1,8 @@
 from pygame.display import update
-from environment import dim, env, get_adjacent, target
+from environment import *
 import random
 import numpy as np
+import matplotlib.pyplot as plt 
 import collections
 
 def initialize_belief():
@@ -144,9 +145,9 @@ def basic_agent2(_env, _belief, _confidence):
             else:
                 distance += (abs(row - current[0]) + abs(col - current[1]))
                 target_not_found = False
-                print("num of searches ", searches)
-                print("target found at: ", current)
-                print("target terrain: ", _env[current[0]][current[1]][0])
+                # print("num of searches ", searches)
+                # print("target found at: ", current)
+                # print("target terrain: ", _env[current[0]][current[1]][0])
                 return (searches, distance)
 
         # cell doesnt contain the target, update belief state
@@ -168,13 +169,34 @@ def basic_agent2(_env, _belief, _confidence):
         col = current[1]
 
 
-belief = initialize_belief()
-confidence = initialize_confidence()
+x = []
+n = 1
+while n <= 25:
+    x.append(n)
+    n+=1
 
-results = basic_agent2(env, belief, confidence)
+y2 =[]
 
-print("searches: " + str(results[0]) + " distance traveled: " + str(results[1]) + " total score: " + str(results[0]+results[1]))
+for i in range(25):
+    env = get_env()
+    belief = initialize_belief()
+    confidence = initialize_confidence()
+    get_target_coords = get_target(env)
+    target = get_target_coords[1]
+
+    results = basic_agent2(env, belief, confidence)
+    score = results[0] + results[1]
+    y2.append(score)
+
+    # print("searches: " + str(results[0]) + " distance traveled: " + str(results[1]) + " total score: " + str(results[0]+results[1]))
 # print_belief(belief)
 # # print_confidence(confidence)
 # print(target)
 
+print(y2)
+plt.plot(x, y2, label = "Basic Agent 2")
+plt.xlabel(" Number of Maps ")
+plt.ylabel(" Average of Total Score")
+plt.title(" Average Total Score for Basic Agent 2")
+plt.legend()
+plt.show()
